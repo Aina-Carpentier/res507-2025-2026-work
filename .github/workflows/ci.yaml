@@ -32,7 +32,7 @@ jobs:
     - name: Run container
       run: |
         docker run -d --name quote-app -p 3000:3000 quote-app
-        for i in $(seq 1 30); do
+        for i in $(seq 1 10); do
           response=$(curl -sS http://localhost:3000/health 2>/dev/null || echo "")
           echo "Attempt $i - Response: $response"
           if echo "$response" | grep -q '"ok":true'; then
@@ -41,7 +41,7 @@ jobs:
           fi
           sleep 1
         done
-        echo "Health check failed"
+        echo "Health check failed after 10 seconds"
         docker logs quote-app || true
         exit 1
 
