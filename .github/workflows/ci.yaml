@@ -33,8 +33,10 @@ jobs:
       run: |
         docker run -d --name quote-app -p 3000:3000 quote-app
         for i in $(seq 1 30); do
-          if curl -fsS http://localhost:3000/health >/dev/null; then
-            echo "Health check passed"
+          response=$(curl -sS http://localhost:3000/health 2>/dev/null || echo "")
+          echo "Attempt $i - Response: $response"
+          if echo "$response" | grep -q '"ok":true'; then
+            echo "Health check passed with response: $response"
             exit 0
           fi
           sleep 1
