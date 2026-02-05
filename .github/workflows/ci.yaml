@@ -42,10 +42,17 @@ jobs:
           sleep 1
         done
         echo "Health check failed after 10 seconds"
-        docker logs quote-app || true
+        echo "=== Docker container status ==="
+        docker ps -a || echo "Failed to get docker ps"
+        echo "=== Container logs ==="
+        docker logs quote-app || echo "Failed to get container logs"
+        echo "=== Port check ==="
+        netstat -tuln | grep 3000 || echo "Port 3000 not listening"
+        echo "=== Direct curl attempt ==="
+        curl -v http://localhost:3000/health || echo "Failed to curl health endpoint"
         exit 1
 
     - name: Stop container
       if: always()
       run: |
-        docker rm -f quote-app || true
+        docker rm -f quote-app || echo "Failed to stop container"
