@@ -32,18 +32,27 @@ jobs:
     - name: Run container
       run: |
         docker run -d --name quote-app -p 3000:3000 quote-app
-        for i in $(seq 1 30); do
-          if curl -fsS http://localhost:3000/health >/dev/null; then
-            echo "Health check passed"
+        for i in $(seq 1 10); do
+          response=$(curl -sS http://localhost:3000/health 2>/dev/null || echo "")
+          echo "Attempt $i - Response: $response"
+          if echo "$response" | grep -q '"ok":true'; then
+            echo "Health check passed with response: $response"
             exit 0
           fi
           sleep 1
         done
-        echo "Health check failed"
-        docker logs quote-app || true
+        echo "Health check failed after 10 seconds"
+        echo "=== Docker container status ==="
+        docker ps -a || echo "Failed to get docker ps"
+        echo "=== Container logs ==="
+        docker logs quote-app || echo "Failed to get container logs"
+        echo "=== Port check ==="
+        netstat -tuln | grep 3000 || echo "Port 3000 not listening"
+        echo "=== Direct curl attempt ==="
+        curl -v http://localhost:3000/health || echo "Failed to curl health endpoint"
         exit 1
 
     - name: Stop container
       if: always()
       run: |
-        docker rm -f quote-app || true
+        docker rm -f quote-app || echo "Failed to stop container"
