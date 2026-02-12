@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quote-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quote-app
+  template:
+    metadata:
+      labels:
+        app: quote-app
+    spec:
+      containers:
+        - name: quote-app
+          image: quote-app:local
+
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+
+          env:
+            - name: DATABASE_URL
+              value: "postgres://postgres:postgres@localhost:5432/postgres"
+
+        - name: quote-db
+          image: postgres:17
+
+          env:
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "postgres"
+            - name: POSTGRES_DB
+              value: "postgres"
+
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+            - name: init-sql
+              mountPath: /docker-entrypoint-initdb.d/
+
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+      volumes:
+        - name: pgdata
+          persistentVolumeClaim:
+            claimName: pgdata-pvc
+        - name: init-sql
+          configMap:
+            name: init-sql
