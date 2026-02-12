@@ -10,15 +10,15 @@ spec:
       targetPort: 3000
   type: ClusterIP
 
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: quote-db
-# spec:
-#   selector:
-#     app: quote-db
-#   ports:
-#     - port: 5432
-#       targetPort: 5432
-#   type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quote-db
+spec:
+  selector:
+    app: quote-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+  type: ClusterIP
