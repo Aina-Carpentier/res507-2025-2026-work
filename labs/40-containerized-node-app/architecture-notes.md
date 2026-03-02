@@ -144,3 +144,59 @@ De cette manière, pas de credentials dans Git, risque de leak, séparation conf
 **Is a Secret encrypted by default? Where?**
 Non, ils sont seulement encodés en base 64 mais pas chiffrés.
 Les secrets sont stockés dans etcd, la db interne de k8s.
+
+# **_Step 13_**
+
+**What changed in the cluster during the rollout?**
+
+- Nouveaux Pods créés avec nouvelle image
+- Anciens Pods supprimés progressivement
+
+**What stayed the same?**
+
+- Service
+- Nom du Deployment
+
+# **_Step 14_**
+
+**What failed first?**
+
+Pods en ImagePullBackOff
+
+**Which signal showed you the failure fastest?**
+
+`kubectl get pods`
+
+**What would you check next if this happened in production?**
+
+- Logs container
+- Events
+- Image registry
+
+# **_Step 15_**
+
+**What did rollback change?**
+
+- Image version
+- Pods
+
+**What did rollback not change?**
+
+- Secrets
+- Volumes
+
+# **_Step 16.1 Option A_**
+
+**What does maxSurge do?**
+
+`maxSurge` définit combien de Pods supplémentaires peuvent être créés temporairement pendant un rollout.
+
+**What does maxUnavailable do?**
+
+`maxUnavailable` définit combien de Pods peuvent être indisponibles pendant la mise à jour.
+
+**Why might you choose 0 for maxUnavailable?**
+
+Avec 0, aucun Pod existant ne peut être indisponible pendant le rollout.
+
+Ainsi, on est sûr de ne pas rajouter de la charge sur les autres instances et de créer des erreurs.
