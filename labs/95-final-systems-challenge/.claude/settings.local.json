@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//tmp/**)",
+      "Bash(npm install sharp)",
+      "Bash(node -e \":*)"
+    ]
+  }
+}
